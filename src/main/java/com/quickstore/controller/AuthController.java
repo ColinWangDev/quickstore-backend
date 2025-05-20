@@ -1,8 +1,10 @@
 package com.quickstore.controller;
 
+import com.quickstore.dto.RegisterRequest;
 import com.quickstore.model.User;
 import com.quickstore.security.JwtTokenProvider;
 import com.quickstore.service.UserService;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +30,30 @@ public class AuthController {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.tokenProvider = tokenProvider;
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest registerRequest) {
+        logger.info("Attempting to register new user: {}", registerRequest.getUsername());
+
+        // 检查用户名是否已存在
+        if (userService.findByUsername(registerRequest.getUsername()) != null) {
+            logger.warn("Registration failed: Username {} already exists", registerRequest.getUsername());
+            return ResponseEntity.badRequest().body("Username already exists");
+        }
+
+        // 创建新用户
+        User user = new User();
+        user.setUsername(registerRequest.getUsername());
+        user.setPasswordHash(passwordEncoder.encode(registerRequest.getPassword()));
+        user.setFullName(registerRequest.getFullName());
+        user.setRole(registerRequest.getRole().toLowerCase()); // 确保角色是小写的
+
+        // 保存用户
+        userService.save(user);
+        logger.info("User registered successfully: {}", user.getUsername());
+
+        return ResponseEntity.ok("User registered successfully");
     }
 
     @PostMapping("/login")
