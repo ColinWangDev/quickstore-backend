@@ -10,4 +10,6 @@ public interface UserService extends UserDetailsService {
     List<User> findAllUsers();
     User findById(Long id);
     void deleteUser(Long id);
+    void changePassword(String username, String oldPassword, String newPassword);
+    void resetPassword(Long userId, String newPassword);
 } 
