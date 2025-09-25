@@ -1,4 +1,6 @@
 spring:
+  profiles:
+      active: ${SPRING_PROFILES_ACTIVE:dev}
   datasource:
     url: jdbc:postgresql://localhost:5432/quickstore_db
     username: postgres
